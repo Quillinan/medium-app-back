@@ -17,6 +17,8 @@ obj/
 *.suo
 *.userosscache
 *.sln.docstates
+.env*
+!.env.example
 
 # ASP.NET Scaffolding
 ScaffoldingReadMe.txt
