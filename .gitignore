@@ -1,0 +1,34 @@
+# Compiled object files
+*.o
+*.obj
+*.exe
+*.dll
+*.pdb
+*.cache
+
+# Build directories
+bin/
+obj/
+
+# User-specific files
+*.csproj.user
+*.user
+*.rsuser
+*.suo
+*.userosscache
+*.sln.docstates
+
+# ASP.NET Scaffolding
+ScaffoldingReadMe.txt
+
+# Visual Studio Code
+.vscode/
+
+# Rider
+.idea/
+
+# Recycle Bin
+$RECYCLE.BIN/
+
+# Logs
+*.log
