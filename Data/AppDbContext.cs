@@ -1,5 +1,5 @@
 using Microsoft.EntityFrameworkCore;
-using medium_app_back.Users;
+using medium_app_back.Models;
 
 namespace medium_app_back.Data
 {
