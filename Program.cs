@@ -10,6 +10,8 @@ var connectionString = $"Server={Env.GetString("DATABASE_SERVER")};Database={Env
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseSqlServer(connectionString));
 
+builder.Services.AddControllers();
+
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
@@ -25,14 +27,8 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 
-app.MapGet("Hello-world", ()=> "Hello World");
+app.MapControllers();
 
-app.MapGet("users/{id}", async (int id, AppDbContext db) =>
-{
-    var user = await db.Users.FindAsync(id);
-    return user is not null 
-        ? Results.Ok(user) 
-        : Results.NotFound("User not found");
-});
+app.MapGet("Hello-world", () => "Hello World");
 
 app.Run();
