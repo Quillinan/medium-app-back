@@ -1,6 +1,8 @@
 using medium_app_back.Data;
 using Microsoft.EntityFrameworkCore;
 using DotNetEnv;
+using medium_app_back.Repositories;
+using medium_app_back.Services;
 
 Env.Load();
 
@@ -10,11 +12,16 @@ var connectionString = $"Server={Env.GetString("DATABASE_SERVER")};Database={Env
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseSqlServer(connectionString));
 
-builder.Services.AddControllers();
+builder.Services.AddScoped<UserRepository>();
+builder.Services.AddScoped<UserService>();
+
 
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+
+builder.Services.AddControllers();
+
 
 var app = builder.Build();
 
