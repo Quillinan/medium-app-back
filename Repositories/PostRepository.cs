@@ -29,7 +29,7 @@ namespace medium_app_back.Repositories
                 .ToListAsync();
         }
 
-        public async Task AddUserAsync(Post post)
+        public async Task AddPostAsync(Post post)
         {
             post.CreatedAt = DateTime.UtcNow;
             post.UpdatedAt = DateTime.UtcNow;
