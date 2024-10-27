@@ -37,33 +37,16 @@ namespace medium_app_back.Repositories
             await _context.SaveChangesAsync();
         }
 
-        public async Task<bool> UpdatePostAsync(int id, Post updatedPost)
+        public async Task UpdatePostAsync(Post post)
         {
-            var existingPost = await GetPostByIdAsync(id);
-            if (existingPost == null)
-            {
-                return false;
-            }
-
-            existingPost.Title = updatedPost.Title;
-            existingPost.Content = updatedPost.Content;
-            existingPost.UpdatedAt = DateTime.UtcNow;
-
+            _context.Posts.Update(post);
             await _context.SaveChangesAsync();
-            return true;
         }
 
-        public async Task<bool> DeletePostAsync(int id)
+        public async Task DeletePostAsync(Post post)
         {
-            var post = await GetPostByIdAsync(id);
-            if (post == null)
-            {
-                return false;
-            }
-
             _context.Posts.Remove(post);
             await _context.SaveChangesAsync();
-            return true;
         }
 
     }
