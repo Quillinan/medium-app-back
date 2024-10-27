@@ -12,8 +12,8 @@ var connectionString = $"Server={Env.GetString("DATABASE_SERVER")};Database={Env
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseSqlServer(connectionString));
 
-builder.Services.AddScoped<UserRepository>();
-builder.Services.AddScoped<UserService>();
+builder.Services.AddScoped<PostRepository>();
+builder.Services.AddScoped<PostService>();
 
 
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
