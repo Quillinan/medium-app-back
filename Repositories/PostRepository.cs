@@ -21,7 +21,7 @@ namespace medium_app_back.Repositories
                 .FirstOrDefaultAsync(p => p.Id == id);
         }
 
-        public async Task<List<Post>> GetPostsByAuthorIdAsync(int authorId)
+        public async Task<List<Post>> GetPostsByAuthorIdAsync(string authorId)
         {
             return await _context.Posts
                 .Where(p => p.AuthorId == authorId)

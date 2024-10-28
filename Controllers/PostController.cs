@@ -1,4 +1,5 @@
 using medium_app_back.Models;
+using medium_app_back.Requests;
 using medium_app_back.Services;
 using Microsoft.AspNetCore.Mvc;
 
@@ -27,21 +28,22 @@ namespace medium_app_back.Controllers
         }
 
         [HttpGet("author/{authorId}")]
-        public async Task<IActionResult> GetPostsByAuthorId(int authorId)
+        public async Task<IActionResult> GetPostsByAuthorId(string authorId)
         {
             var posts = await postService.GetPostsByAuthorIdAsync(authorId);
             return Ok(posts);
         }
 
         [HttpPost]
-        public async Task<IActionResult> AddPost([FromBody] Post post)
+        public async Task<IActionResult> AddPost([FromBody] CreatePostRequest createPostRequest)
         {
             if (!ModelState.IsValid)
             {
                 return BadRequest(ModelState);
             }
 
-            await postService.AddPostAsync(post);
+            var post = await postService.AddPostAsync(createPostRequest);
+
             return CreatedAtAction(nameof(GetPostById), new { id = post.Id }, post);
         }
 
