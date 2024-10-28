@@ -1,7 +1,6 @@
 using medium_app_back.Models;
 using medium_app_back.Services;
 using Microsoft.AspNetCore.Mvc;
-using Swashbuckle.AspNetCore.Annotations;
 
 namespace medium_app_back.Controllers
 {
@@ -10,7 +9,6 @@ namespace medium_app_back.Controllers
     public class PostController(PostService postService) : ControllerBase
     {
         [HttpGet]
-        [SwaggerOperation(Tags = ["Get Posts"])]
         public async Task<IActionResult> GetAllPosts()
         {
             var posts = await postService.GetAllPostsAsync();
@@ -18,7 +16,6 @@ namespace medium_app_back.Controllers
         }
 
         [HttpGet("{id}")]
-        [SwaggerOperation(Tags = ["Get Posts"])]
         public async Task<IActionResult> GetPostById(int id)
         {
             var post = await postService.GetPostByIdAsync(id);
@@ -30,7 +27,6 @@ namespace medium_app_back.Controllers
         }
 
         [HttpGet("author/{authorId}")]
-        [SwaggerOperation(Tags = ["Get Posts"])]
         public async Task<IActionResult> GetPostsByAuthorId(int authorId)
         {
             var posts = await postService.GetPostsByAuthorIdAsync(authorId);
@@ -38,8 +34,6 @@ namespace medium_app_back.Controllers
         }
 
         [HttpPost]
-        [SwaggerOperation(Tags = ["Create Post"])]
-
         public async Task<IActionResult> AddPost([FromBody] Post post)
         {
             if (!ModelState.IsValid)
@@ -52,7 +46,6 @@ namespace medium_app_back.Controllers
         }
 
         [HttpPut("{id}")]
-        [SwaggerOperation(Tags = ["Update Post"])]
         public async Task<IActionResult> UpdatePost(int id, [FromBody] Post updatedPost)
         {
             if (!ModelState.IsValid)
@@ -70,7 +63,6 @@ namespace medium_app_back.Controllers
         }
 
         [HttpDelete("{id}")]
-        [SwaggerOperation(Tags = ["Delete Post"])]
         public async Task<IActionResult> DeletePost(int id)
         {
             var result = await postService.DeletePostAsync(id);

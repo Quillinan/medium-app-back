@@ -20,6 +20,7 @@ builder.Services.AddScoped<PostService>();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
+
 builder.Services.AddControllers();
 
 
@@ -35,7 +36,5 @@ if (app.Environment.IsDevelopment())
 app.UseHttpsRedirection();
 
 app.MapControllers();
-
-app.MapGet("Hello-world", () => "Hello World");
 
 app.Run();
