@@ -48,7 +48,7 @@ namespace medium_app_back.Controllers
         }
 
         [HttpPut("{id}")]
-        public async Task<IActionResult> UpdatePost(int id, [FromBody] Post updatedPost)
+        public async Task<IActionResult> UpdatePost(int id, [FromBody] UpdatePostRequest updatedPost)
         {
             if (!ModelState.IsValid)
             {

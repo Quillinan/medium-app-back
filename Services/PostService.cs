@@ -79,7 +79,7 @@ namespace medium_app_back.Services
             return post;
         }
 
-        public async Task<bool> UpdatePostAsync(int id, Post updatedPost)
+        public async Task<bool> UpdatePostAsync(int id, UpdatePostRequest updatedPost)
         {
             var existingPost = await GetPostByIdAsync(id);
             if (existingPost == null)
@@ -87,11 +87,11 @@ namespace medium_app_back.Services
                 return false;
             }
 
-            ValidateTitleAndContent(updatedPost);
-
             existingPost.Title = updatedPost.Title;
             existingPost.Content = updatedPost.Content;
             existingPost.UpdatedAt = DateTime.UtcNow;
+
+            ValidateTitleAndContent(existingPost);
 
             await postRepository.UpdatePostAsync(existingPost);
             return true;
