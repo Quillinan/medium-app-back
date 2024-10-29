@@ -20,6 +20,14 @@ builder.Services.AddSingleton(provider =>
     return encryptionKey;
 });
 
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowFrontend",
+        builder => builder.WithOrigins("http://localhost:5173", "https://seu-dominio-deploy.com")
+                          .AllowAnyMethod()
+                          .AllowAnyHeader());
+});
+
 var connectionString = $"Server={Env.GetString("DATABASE_SERVER")};Database={Env.GetString("DATABASE_NAME")};Integrated Security=True;TrustServerCertificate=True;";
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseSqlServer(connectionString));
@@ -41,6 +49,8 @@ if (app.Environment.IsDevelopment())
     app.UseSwagger();
     app.UseSwaggerUI();
 }
+
+app.UseCors("AllowFrontend");
 
 app.UseHttpsRedirection();
 
