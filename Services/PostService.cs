@@ -10,11 +10,11 @@ namespace medium_app_back.Services
     {
         private readonly PostRepository postRepository = postRepository;
 
-        private static void ValidateTitleAndContent(Post post)
+        private static void ValidateTitleSubtitleAndContent(Post post)
         {
-            if (string.IsNullOrWhiteSpace(post.Title) || string.IsNullOrWhiteSpace(post.Content))
+            if (string.IsNullOrWhiteSpace(post.Title) || string.IsNullOrWhiteSpace(post.Subtitle) || string.IsNullOrWhiteSpace(post.Content))
             {
-                throw new ArgumentException("Title and content are required.");
+                throw new ArgumentException("Title, subtitle and content are required.");
             }
         }
 
@@ -67,13 +67,15 @@ namespace medium_app_back.Services
             var post = new Post
             {
                 Title = createPostRequest.Title,
+                Subtitle = createPostRequest.Subtitle,
                 Content = createPostRequest.Content,
                 CreatedAt = DateTime.UtcNow,
                 UpdatedAt = DateTime.UtcNow,
-                AuthorId = EncryptAuthorId(createPostRequest.AuthorId)
+                AuthorId = EncryptAuthorId(createPostRequest.AuthorId),
+                AuthorName = createPostRequest.AuthorName
             };
 
-            ValidateTitleAndContent(post);
+            ValidateTitleSubtitleAndContent(post);
 
             await postRepository.AddPostAsync(post);
             return post;
@@ -88,10 +90,11 @@ namespace medium_app_back.Services
             }
 
             existingPost.Title = updatedPost.Title;
+            existingPost.Subtitle = updatedPost.Subtitle;
             existingPost.Content = updatedPost.Content;
             existingPost.UpdatedAt = DateTime.UtcNow;
 
-            ValidateTitleAndContent(existingPost);
+            ValidateTitleSubtitleAndContent(existingPost);
 
             await postRepository.UpdatePostAsync(existingPost);
             return true;
