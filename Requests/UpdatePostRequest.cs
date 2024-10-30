@@ -2,8 +2,9 @@ namespace medium_app_back.Requests
 {
     public class UpdatePostRequest
     {
-        public required string Title { get; set; }
-        public required string Subtitle { get; set; }
-        public required string Content { get; set; }
+        public string? Title { get; set; }
+        public string? Subtitle { get; set; }
+        public string? Content { get; set; }
+        public string? CoverImage { get; set; }
     }
 }

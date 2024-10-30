@@ -10,11 +10,11 @@ namespace medium_app_back.Services
     {
         private readonly PostRepository postRepository = postRepository;
 
-        private static void ValidateTitleSubtitleAndContent(Post post)
+        private static void ValidateField(string? value, string fieldName)
         {
-            if (string.IsNullOrWhiteSpace(post.Title) || string.IsNullOrWhiteSpace(post.Subtitle) || string.IsNullOrWhiteSpace(post.Content))
+            if (string.IsNullOrWhiteSpace(value))
             {
-                throw new ArgumentException("Title, subtitle and content are required.");
+                throw new ArgumentException($"The {fieldName} is required.");
             }
         }
 
@@ -69,13 +69,16 @@ namespace medium_app_back.Services
                 Title = createPostRequest.Title,
                 Subtitle = createPostRequest.Subtitle,
                 Content = createPostRequest.Content,
+                CoverImage = createPostRequest.CoverImage,
                 CreatedAt = DateTime.UtcNow,
                 UpdatedAt = DateTime.UtcNow,
                 AuthorId = EncryptAuthorId(createPostRequest.AuthorId),
                 AuthorName = createPostRequest.AuthorName
             };
 
-            ValidateTitleSubtitleAndContent(post);
+            ValidateField(post.Title, nameof(post.Title));
+            ValidateField(post.Subtitle, nameof(post.Subtitle));
+            ValidateField(post.Content, nameof(post.Content));
 
             await postRepository.AddPostAsync(post);
             return post;
@@ -89,12 +92,27 @@ namespace medium_app_back.Services
                 return false;
             }
 
-            existingPost.Title = updatedPost.Title;
-            existingPost.Subtitle = updatedPost.Subtitle;
-            existingPost.Content = updatedPost.Content;
-            existingPost.UpdatedAt = DateTime.UtcNow;
+            if (!string.IsNullOrWhiteSpace(updatedPost.Title))
+            {
+                existingPost.Title = updatedPost.Title;
+            }
 
-            ValidateTitleSubtitleAndContent(existingPost);
+            if (!string.IsNullOrWhiteSpace(updatedPost.Subtitle))
+            {
+                existingPost.Subtitle = updatedPost.Subtitle;
+            }
+
+            if (!string.IsNullOrWhiteSpace(updatedPost.Content))
+            {
+                existingPost.Content = updatedPost.Content;
+            }
+
+            if (!string.IsNullOrWhiteSpace(updatedPost.CoverImage))
+            {
+                existingPost.CoverImage = updatedPost.CoverImage;
+            }
+
+            existingPost.UpdatedAt = DateTime.UtcNow;
 
             await postRepository.UpdatePostAsync(existingPost);
             return true;

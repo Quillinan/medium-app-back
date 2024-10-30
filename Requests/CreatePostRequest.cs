@@ -7,6 +7,6 @@ namespace medium_app_back.Requests
         public required string Content { get; set; }
         public required string AuthorId { get; set; }
         public required string AuthorName { get; set; }
-
+        public string? CoverImage { get; set; }
     }
 }
