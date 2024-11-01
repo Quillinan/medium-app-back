@@ -1,5 +1,4 @@
 using medium_app_back.Models;
-using medium_app_back.Requests;
 using medium_app_back.Services;
 using Microsoft.AspNetCore.Mvc;
 
@@ -9,6 +8,8 @@ namespace medium_app_back.Controllers
     [Route("api/[controller]")]
     public class PostController(PostService postService) : ControllerBase
     {
+        private readonly PostService postService = postService;
+
         [HttpGet]
         public async Task<IActionResult> GetAllPosts()
         {
@@ -17,13 +18,14 @@ namespace medium_app_back.Controllers
         }
 
         [HttpGet("{id}")]
-        public async Task<IActionResult> GetPostById(int id)
+        public async Task<ActionResult<GetPostRequest>> GetPost(int id)
         {
             var post = await postService.GetPostByIdAsync(id);
             if (post == null)
             {
                 return NotFound();
             }
+
             return Ok(post);
         }
 
@@ -35,7 +37,8 @@ namespace medium_app_back.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> AddPost([FromBody] CreatePostRequest createPostRequest)
+        [RequestSizeLimit(10_000_000)]
+        public async Task<IActionResult> AddPost([FromForm] CreatePostRequest createPostRequest)
         {
             if (!ModelState.IsValid)
             {
@@ -43,12 +46,12 @@ namespace medium_app_back.Controllers
             }
 
             var post = await postService.AddPostAsync(createPostRequest);
-
-            return CreatedAtAction(nameof(GetPostById), new { id = post.Id }, post);
+            return CreatedAtAction(nameof(GetPost), new { id = post.Id }, post);
         }
 
+
         [HttpPut("{id}")]
-        public async Task<IActionResult> UpdatePost(int id, [FromBody] UpdatePostRequest updatedPost)
+        public async Task<IActionResult> UpdatePost(int id, [FromForm] UpdatePostRequest updatedPost)
         {
             if (!ModelState.IsValid)
             {
@@ -56,7 +59,7 @@ namespace medium_app_back.Controllers
             }
 
             var result = await postService.UpdatePostAsync(id, updatedPost);
-            if (!result)
+            if (result == null)
             {
                 return NotFound();
             }
@@ -75,6 +78,5 @@ namespace medium_app_back.Controllers
 
             return NoContent();
         }
-
     }
 }

@@ -11,21 +11,19 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddSingleton(provider =>
 {
     var encryptionKey = Environment.GetEnvironmentVariable("ENCRYPTION_KEY");
-
     if (string.IsNullOrEmpty(encryptionKey))
     {
         throw new ArgumentException("A chave de criptografia não pode ser nula ou vazia.");
     }
-
     return encryptionKey;
 });
 
 builder.Services.AddCors(options =>
 {
-    options.AddPolicy("AllowFrontend",
-        builder => builder.WithOrigins("http://localhost:5173", "https://seu-dominio-deploy.com")
-                          .AllowAnyMethod()
-                          .AllowAnyHeader());
+    options.AddPolicy("AllowFrontend", policy =>
+        policy.WithOrigins("http://localhost:5173", "https://seu-dominio-deploy.com")
+              .AllowAnyMethod()
+              .AllowAnyHeader());
 });
 
 var connectionString = $"Server={Env.GetString("DATABASE_SERVER")};Database={Env.GetString("DATABASE_NAME")};Integrated Security=True;TrustServerCertificate=True;";

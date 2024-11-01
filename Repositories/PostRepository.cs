@@ -31,9 +31,7 @@ namespace medium_app_back.Repositories
 
         public async Task AddPostAsync(Post post)
         {
-            post.CreatedAt = DateTime.UtcNow;
-            post.UpdatedAt = DateTime.UtcNow;
-            _context.Posts.Add(post);
+            await _context.Posts.AddAsync(post);
             await _context.SaveChangesAsync();
         }
 

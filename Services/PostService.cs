@@ -1,22 +1,16 @@
 using System.Security.Cryptography;
 using System.Text;
+using medium_app_back.Data;
 using medium_app_back.Models;
 using medium_app_back.Repositories;
-using medium_app_back.Requests;
 
 namespace medium_app_back.Services
 {
-    public class PostService(PostRepository postRepository, string encryptionKey)
+    public class PostService(PostRepository postRepository, string encryptionKey, AppDbContext context)
     {
         private readonly PostRepository postRepository = postRepository;
-
-        private static void ValidateField(string? value, string fieldName)
-        {
-            if (string.IsNullOrWhiteSpace(value))
-            {
-                throw new ArgumentException($"The {fieldName} is required.");
-            }
-        }
+        private readonly string encryptionKey = encryptionKey;
+        private readonly AppDbContext _context = context;
 
         private string EncryptAuthorId(string authorId)
         {
@@ -45,12 +39,19 @@ namespace medium_app_back.Services
             return Convert.ToBase64String(resultBytes);
         }
 
-        public async Task<List<Post>> GetAllPostsAsync()
+        public async Task<List<GetPostRequest>> GetAllPostsAsync()
         {
-            return await postRepository.GetAllPostsAsync();
+            var posts = await postRepository.GetAllPostsAsync();
+            return posts.Select(ConvertToGetPostRequest).ToList();
         }
 
-        public async Task<Post?> GetPostByIdAsync(int id)
+        public async Task<GetPostRequest?> GetPostByIdAsync(int id)
+        {
+            var post = await postRepository.GetPostByIdAsync(id);
+            return post != null ? ConvertToGetPostRequest(post) : null;
+        }
+
+        public async Task<Post?> GetRawPostByIdAsync(int id)
         {
             return await postRepository.GetPostByIdAsync(id);
         }
@@ -63,64 +64,51 @@ namespace medium_app_back.Services
 
         public async Task<Post> AddPostAsync(CreatePostRequest createPostRequest)
         {
+            byte[] imageData;
+            using (var memoryStream = new MemoryStream())
+            {
+                await createPostRequest.CoverImageData.CopyToAsync(memoryStream);
+                imageData = memoryStream.ToArray();
+            }
 
             var post = new Post
             {
                 Title = createPostRequest.Title,
                 Subtitle = createPostRequest.Subtitle,
                 Content = createPostRequest.Content,
-                CoverImage = createPostRequest.CoverImage,
+                CoverImageData = imageData,
                 CreatedAt = DateTime.UtcNow,
                 UpdatedAt = DateTime.UtcNow,
-                AuthorId = EncryptAuthorId(createPostRequest.AuthorId),
+                AuthorId = createPostRequest.AuthorId,
                 AuthorName = createPostRequest.AuthorName
             };
 
-            ValidateField(post.Title, nameof(post.Title));
-            ValidateField(post.Subtitle, nameof(post.Subtitle));
-            ValidateField(post.Content, nameof(post.Content));
+            await _context.Posts.AddAsync(post);
+            await _context.SaveChangesAsync();
 
-            await postRepository.AddPostAsync(post);
             return post;
         }
 
-        public async Task<bool> UpdatePostAsync(int id, UpdatePostRequest updatedPost)
+        public async Task<Post?> UpdatePostAsync(int postId, UpdatePostRequest updatedPost)
         {
-            var existingPost = await GetPostByIdAsync(id);
+            var existingPost = await _context.Posts.FindAsync(postId);
             if (existingPost == null)
             {
-                return false;
+                return null;
             }
 
-            if (!string.IsNullOrWhiteSpace(updatedPost.Title))
-            {
-                existingPost.Title = updatedPost.Title;
-            }
+            existingPost.Title = updatedPost.Title ?? existingPost.Title;
+            existingPost.Subtitle = updatedPost.Subtitle ?? existingPost.Subtitle;
+            existingPost.Content = updatedPost.Content ?? existingPost.Content;
 
-            if (!string.IsNullOrWhiteSpace(updatedPost.Subtitle))
-            {
-                existingPost.Subtitle = updatedPost.Subtitle;
-            }
+            await _context.SaveChangesAsync();
 
-            if (!string.IsNullOrWhiteSpace(updatedPost.Content))
-            {
-                existingPost.Content = updatedPost.Content;
-            }
-
-            if (!string.IsNullOrWhiteSpace(updatedPost.CoverImage))
-            {
-                existingPost.CoverImage = updatedPost.CoverImage;
-            }
-
-            existingPost.UpdatedAt = DateTime.UtcNow;
-
-            await postRepository.UpdatePostAsync(existingPost);
-            return true;
+            return existingPost;
         }
 
         public async Task<bool> DeletePostAsync(int id)
         {
-            var existingPost = await GetPostByIdAsync(id);
+            var existingPost = await GetRawPostByIdAsync(id);
             if (existingPost == null)
             {
                 return false;
@@ -128,6 +116,25 @@ namespace medium_app_back.Services
 
             await postRepository.DeletePostAsync(existingPost);
             return true;
+        }
+
+        private static GetPostRequest ConvertToGetPostRequest(Post post)
+        {
+            string base64Image = Convert.ToBase64String(post.CoverImageData);
+            string imageUrl = $"data:image/png;base64,{base64Image}"; // Altere o tipo MIME se necessário
+
+            return new GetPostRequest
+            {
+                Id = post.Id,
+                Title = post.Title,
+                Subtitle = post.Subtitle,
+                Content = post.Content,
+                CoverImageUrl = imageUrl,
+                CreatedAt = post.CreatedAt,
+                UpdatedAt = post.UpdatedAt,
+                AuthorId = post.AuthorId,
+                AuthorName = post.AuthorName
+            };
         }
     }
 }
