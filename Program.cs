@@ -8,15 +8,15 @@ Env.Load();
 
 var builder = WebApplication.CreateBuilder(args);
 
-builder.Services.AddSingleton(provider =>
-{
-    var encryptionKey = Environment.GetEnvironmentVariable("ENCRYPTION_KEY");
-    if (string.IsNullOrEmpty(encryptionKey))
-    {
-        throw new ArgumentException("A chave de criptografia não pode ser nula ou vazia.");
-    }
-    return encryptionKey;
-});
+// builder.Services.AddSingleton(provider =>
+// {
+//     var encryptionKey = Environment.GetEnvironmentVariable("ENCRYPTION_KEY");
+//     if (string.IsNullOrEmpty(encryptionKey))
+//     {
+//         throw new ArgumentException("A chave de criptografia não pode ser nula ou vazia.");
+//     }
+//     return encryptionKey;
+// });
 
 builder.Services.AddCors(options =>
 {
