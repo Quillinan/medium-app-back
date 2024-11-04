@@ -1,43 +1,44 @@
-using System.Security.Cryptography;
-using System.Text;
+// using System.Security.Cryptography;
+// using System.Text;
 using medium_app_back.Data;
 using medium_app_back.Models;
 using medium_app_back.Repositories;
 
 namespace medium_app_back.Services
 {
-    public class PostService(PostRepository postRepository, string encryptionKey, AppDbContext context)
+    public class PostService(PostRepository postRepository, AppDbContext context)
     {
         private readonly PostRepository postRepository = postRepository;
-        private readonly string encryptionKey = encryptionKey;
         private readonly AppDbContext _context = context;
 
-        private string EncryptAuthorId(string authorId)
-        {
-            var keyBytes = Encoding.UTF8.GetBytes(encryptionKey);
+        //  private readonly string encryptionKey = encryptionKey;
 
-            if (keyBytes.Length != 32)
-            {
-                throw new ArgumentException("A chave deve ter 32 bytes para AES-256.");
-            }
+        // private string EncryptAuthorId(string authorId)
+        // {
+        //     var keyBytes = Encoding.UTF8.GetBytes(encryptionKey);
 
-            using var aes = Aes.Create();
-            aes.Key = keyBytes;
-            aes.Mode = CipherMode.CBC;
-            aes.GenerateIV();
+        //     if (keyBytes.Length != 32)
+        //     {
+        //         throw new ArgumentException("A chave deve ter 32 bytes para AES-256.");
+        //     }
 
-            var iv = aes.IV;
-            using var encryptor = aes.CreateEncryptor(aes.Key, iv);
+        //     using var aes = Aes.Create();
+        //     aes.Key = keyBytes;
+        //     aes.Mode = CipherMode.CBC;
+        //     aes.GenerateIV();
 
-            var plainTextBytes = Encoding.UTF8.GetBytes(authorId);
-            var encryptedBytes = encryptor.TransformFinalBlock(plainTextBytes, 0, plainTextBytes.Length);
+        //     var iv = aes.IV;
+        //     using var encryptor = aes.CreateEncryptor(aes.Key, iv);
 
-            var resultBytes = new byte[iv.Length + encryptedBytes.Length];
-            Buffer.BlockCopy(iv, 0, resultBytes, 0, iv.Length);
-            Buffer.BlockCopy(encryptedBytes, 0, resultBytes, iv.Length, encryptedBytes.Length);
+        //     var plainTextBytes = Encoding.UTF8.GetBytes(authorId);
+        //     var encryptedBytes = encryptor.TransformFinalBlock(plainTextBytes, 0, plainTextBytes.Length);
 
-            return Convert.ToBase64String(resultBytes);
-        }
+        //     var resultBytes = new byte[iv.Length + encryptedBytes.Length];
+        //     Buffer.BlockCopy(iv, 0, resultBytes, 0, iv.Length);
+        //     Buffer.BlockCopy(encryptedBytes, 0, resultBytes, iv.Length, encryptedBytes.Length);
+
+        //     return Convert.ToBase64String(resultBytes);
+        // }
 
         public async Task<List<GetPostRequest>> GetAllPostsAsync()
         {
@@ -58,8 +59,7 @@ namespace medium_app_back.Services
 
         public async Task<List<Post>> GetPostsByAuthorIdAsync(string authorId)
         {
-            var encryptedAuthorId = EncryptAuthorId(authorId);
-            return await postRepository.GetPostsByAuthorIdAsync(encryptedAuthorId);
+            return await postRepository.GetPostsByAuthorIdAsync(authorId);
         }
 
         public async Task<Post> AddPostAsync(CreatePostRequest createPostRequest)
@@ -70,6 +70,8 @@ namespace medium_app_back.Services
                 await createPostRequest.CoverImageData.CopyToAsync(memoryStream);
                 imageData = memoryStream.ToArray();
             }
+
+
 
             var post = new Post
             {
