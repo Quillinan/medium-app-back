@@ -64,8 +64,9 @@ namespace medium_app_back.Controllers
                 return NotFound();
             }
 
-            return NoContent();
+            return Ok(result);
         }
+
 
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeletePost(int id)

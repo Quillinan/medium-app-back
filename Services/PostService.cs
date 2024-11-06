@@ -39,6 +39,15 @@ namespace medium_app_back.Services
 
         //     return Convert.ToBase64String(resultBytes);
         // }
+        private static async Task<byte[]> ConvertImageToByteArrayAsync(IFormFile imageFile)
+        {
+            if (imageFile == null)
+                return [];
+
+            using var memoryStream = new MemoryStream();
+            await imageFile.CopyToAsync(memoryStream);
+            return memoryStream.ToArray();
+        }
 
         public async Task<List<GetPostRequest>> GetAllPostsAsync()
         {
@@ -64,14 +73,7 @@ namespace medium_app_back.Services
 
         public async Task<Post> AddPostAsync(CreatePostRequest createPostRequest)
         {
-            byte[] imageData;
-            using (var memoryStream = new MemoryStream())
-            {
-                await createPostRequest.CoverImageData.CopyToAsync(memoryStream);
-                imageData = memoryStream.ToArray();
-            }
-
-
+            var imageData = await ConvertImageToByteArrayAsync(createPostRequest.CoverImageData);
 
             var post = new Post
             {
@@ -99,9 +101,19 @@ namespace medium_app_back.Services
                 return null;
             }
 
+            if (updatedPost.CoverImageData != null)
+            {
+                var imageData = await ConvertImageToByteArrayAsync(updatedPost.CoverImageData);
+                existingPost.CoverImageData = imageData;
+            }
+
+
+
+
             existingPost.Title = updatedPost.Title ?? existingPost.Title;
             existingPost.Subtitle = updatedPost.Subtitle ?? existingPost.Subtitle;
             existingPost.Content = updatedPost.Content ?? existingPost.Content;
+            existingPost.UpdatedAt = DateTime.UtcNow;
 
             await _context.SaveChangesAsync();
 
@@ -123,7 +135,7 @@ namespace medium_app_back.Services
         private static GetPostRequest ConvertToGetPostRequest(Post post)
         {
             string base64Image = Convert.ToBase64String(post.CoverImageData);
-            string imageUrl = $"data:image/png;base64,{base64Image}"; // Altere o tipo MIME se necessário
+            string imageUrl = $"data:image/png;base64,{base64Image}";
 
             return new GetPostRequest
             {
