@@ -18,14 +18,9 @@ namespace medium_app_back.Controllers
         }
 
         [HttpGet("{id}")]
-        public async Task<ActionResult<GetPostRequest>> GetPost(int id)
+        public async Task<IActionResult> GetPost(int id)
         {
             var post = await postService.GetPostByIdAsync(id);
-            if (post == null)
-            {
-                return NotFound();
-            }
-
             return Ok(post);
         }
 
@@ -40,11 +35,6 @@ namespace medium_app_back.Controllers
         [RequestSizeLimit(10_000_000)]
         public async Task<IActionResult> AddPost([FromForm] CreatePostRequest createPostRequest)
         {
-            if (!ModelState.IsValid)
-            {
-                return BadRequest(ModelState);
-            }
-
             var post = await postService.AddPostAsync(createPostRequest);
             return CreatedAtAction(nameof(GetPost), new { id = post.Id }, post);
         }

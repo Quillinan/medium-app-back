@@ -55,12 +55,11 @@ namespace medium_app_back.Services
             return posts.Select(ConvertToGetPostRequest).ToList();
         }
 
-        public async Task<GetPostRequest?> GetPostByIdAsync(int id)
+        public async Task<GetPostRequest> GetPostByIdAsync(int id)
         {
-            var post = await postRepository.GetPostByIdAsync(id);
-            return post != null ? ConvertToGetPostRequest(post) : null;
+            var post = await postRepository.GetPostByIdAsync(id) ?? throw new NotFoundException("Post não encontrado.");
+            return ConvertToGetPostRequest(post);
         }
-
         public async Task<Post?> GetRawPostByIdAsync(int id)
         {
             return await postRepository.GetPostByIdAsync(id);
@@ -95,20 +94,12 @@ namespace medium_app_back.Services
 
         public async Task<Post?> UpdatePostAsync(int postId, UpdatePostRequest updatedPost)
         {
-            var existingPost = await _context.Posts.FindAsync(postId);
-            if (existingPost == null)
-            {
-                return null;
-            }
-
+            var existingPost = await _context.Posts.FindAsync(postId) ?? throw new NotFoundException("Post não encontrado.");
             if (updatedPost.CoverImageData != null)
             {
                 var imageData = await ConvertImageToByteArrayAsync(updatedPost.CoverImageData);
                 existingPost.CoverImageData = imageData;
             }
-
-
-
 
             existingPost.Title = updatedPost.Title ?? existingPost.Title;
             existingPost.Subtitle = updatedPost.Subtitle ?? existingPost.Subtitle;
@@ -116,7 +107,6 @@ namespace medium_app_back.Services
             existingPost.UpdatedAt = DateTime.UtcNow;
 
             await _context.SaveChangesAsync();
-
             return existingPost;
         }
 

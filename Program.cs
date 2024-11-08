@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using DotNetEnv;
 using medium_app_back.Repositories;
 using medium_app_back.Services;
+using medium_app_back.Middleware;
 
 Env.Load();
 
@@ -40,6 +41,8 @@ builder.Services.AddSwaggerGen();
 builder.Services.AddControllers();
 
 var app = builder.Build();
+
+app.UseMiddleware<HandlingMiddleware>();
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
