@@ -6,14 +6,14 @@ Pré-requisitos
 Antes de iniciar o projeto, certifique-se de ter instalado:
 
 - .NET SDK
-- Banco de dados configurado (se necessário)
+- Banco de dados configurado( exemplo: Microsoft SQL Server)
 
 ## Instalação:
 
 Clone o repositório e navegue até a pasta do projeto:
 
 ```
-git clone https://github.com/seu-usuario/medium-app-back.git
+git clone https://github.com/Quillinan/medium-app-back.git
 cd medium-app-back
 ```
 
@@ -28,7 +28,7 @@ dotnet restore
 Entity Framework migrations:
 
 ```
-dotnet ef migrations add NomeDaMigration
+dotnet ef migrations add NomeDaMigração // ( exemplo: InicialCreate)
 dotnet ef database update
 ```
 
